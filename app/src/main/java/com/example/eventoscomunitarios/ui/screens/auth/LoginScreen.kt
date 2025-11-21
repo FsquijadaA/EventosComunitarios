@@ -1,20 +1,59 @@
 package com.example.eventoscomunitarios.ui.screens.auth
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.eventoscomunitarios.navigation.AppRoute
+import com.example.eventoscomunitarios.viewmodel.AuthViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.GoogleAuthProvider
 
 @Composable
-fun LoginScreen(navController: NavController) {
-
+fun LoginScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val uiState = authViewModel.uiState
+    val context = LocalContext.current
+    val activity = context as Activity
+
+    // Lanzador para Google Sign-In
+    val googleLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.result
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+            authViewModel.loginWithGoogle(credential)
+        } catch (e: Exception) {
+            // si falla, actualizamos el estado con error
+            authViewModel.resetState()
+        }
+    }
+
+    // Navegar cuando el login sea exitoso
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navController.navigate(AppRoute.Home.route) {
+                popUpTo(AppRoute.Login.route) { inclusive = true }
+            }
+            authViewModel.resetState()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -24,10 +63,8 @@ fun LoginScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(
-            text = "Eventos Comunitarios",
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Text("Eventos Comunitarios", style = MaterialTheme.typography.headlineMedium)
+        Text("Conecta con tu comunidad", style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -48,21 +85,69 @@ fun LoginScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+
+        if (uiState.errorMessage != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = uiState.errorMessage ?: "",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = {
-                // llamar al ViewModel de Auth (Firebase)
-            },
+            onClick = { authViewModel.login(email, password) },
+            enabled = !uiState.isLoading,
             modifier = Modifier.fillMaxWidth()
         ) {
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp
+                )
+                Spacer(Modifier.width(8.dp))
+            }
             Text("Iniciar sesión")
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        TextButton(onClick = { navController.navigate(AppRoute.Register.route) }) {
-            Text("Crear cuenta nueva")
+        OutlinedButton(
+            onClick = { navController.navigate(AppRoute.Register.route) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Crear cuenta")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Divider()
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = {
+                // Configurar Google Sign-In
+                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(
+                        activity.getString(
+                            com.example.eventoscomunitarios.R.string.default_web_client_id
+                        )
+                    )
+                    .requestEmail()
+                    .build()
+
+                val googleSignInClient = GoogleSignIn.getClient(activity, gso)
+                googleLauncher.launch(googleSignInClient.signInIntent)
+            },
+            enabled = !uiState.isLoading,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Continuar con Google")
         }
     }
 }
