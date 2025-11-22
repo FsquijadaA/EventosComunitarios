@@ -29,12 +29,24 @@ class EventViewModel(
 
     // --------- Listado ---------
     fun loadEvents() {
-        uiState = uiState.copy(isLoading = true, errorMessage = null)
-        repository.getActiveEvents { success, list, error ->
-            uiState = if (success && list != null) {
-                uiState.copy(isLoading = false, events = list)
+        uiState = uiState.copy(
+            isLoading = true,
+            errorMessage = null
+        )
+
+        repository.getActiveEvents { success, events, error ->
+            uiState = if (success && events != null) {
+                uiState.copy(
+                    isLoading = false,
+                    events = events,
+                    errorMessage = null
+                )
             } else {
-                uiState.copy(isLoading = false, errorMessage = error ?: "Error al cargar eventos")
+                uiState.copy(
+                    isLoading = false,
+                    events = emptyList(),
+                    errorMessage = error ?: "Error desconocido"
+                )
             }
         }
     }
@@ -68,8 +80,8 @@ class EventViewModel(
             location = location,
             community = community,
             category = category,
-            maxCapacity = maxCapacity,
-            isPublic = isPublic,
+            maxCapacity = maxCapacity?.toLong(),
+            public = isPublic,
             creatorId = userId,
             status = "active"
         )

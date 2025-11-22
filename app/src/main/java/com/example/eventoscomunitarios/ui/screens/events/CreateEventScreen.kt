@@ -135,7 +135,6 @@ fun CreateEventScreen(
 
         Button(
             onClick = {
-                // fecha muy simple: si pones "2024-11-24" lo convertimos a Timestamp
                 val timestamp = try {
                     val parts = dateText.split("-")
                     val cal = Calendar.getInstance().apply {

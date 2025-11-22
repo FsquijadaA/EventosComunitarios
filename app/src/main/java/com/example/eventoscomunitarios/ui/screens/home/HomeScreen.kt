@@ -27,6 +27,9 @@ import com.example.eventoscomunitarios.navigation.AppRoute
 import com.example.eventoscomunitarios.viewmodel.EventViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.LocalIndication
+
 
 // Categorías que usaremos en los chips
 private val eventCategories = listOf("Todos", "Talleres", "Reuniones", "Deportes", "Comunitarios")
@@ -208,10 +211,16 @@ fun HomeScreen(
 
 @Composable
 fun EventCard(event: Event, onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = onClick
+            ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(3.dp),
         colors = CardDefaults.cardColors(

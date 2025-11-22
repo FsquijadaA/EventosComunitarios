@@ -11,6 +11,7 @@ class EventRepository(
 
     private val eventsCollection = firestore.collection("events")
 
+    // ---------- CREAR EVENTO ----------
     fun createEvent(
         event: Event,
         onResult: (Boolean, String?) -> Unit
@@ -18,34 +19,52 @@ class EventRepository(
         val doc = eventsCollection.document()
         val toSave = event.copy(id = doc.id)
 
-        // val toSave = event.copy(
-           // id = doc.id,
-            // createdAt = null // agregar al modelo luego
-        //)
-
         doc.set(toSave)
             .addOnSuccessListener { onResult(true, null) }
             .addOnFailureListener { e -> onResult(false, e.message) }
     }
 
+    // ---------- LISTAR EVENTOS ACTIVOS ----------
     fun getActiveEvents(
         onResult: (Boolean, List<Event>?, String?) -> Unit
     ) {
         eventsCollection
-            .orderBy("date")    // solo ordenamos por fecha en Firestore
             .get()
             .addOnSuccessListener { snap ->
-                val list = snap.documents
-                    .mapNotNull { it.toObject(Event::class.java) }
-                    .filter { it.status == "active" }   // filtramos en la app
-                onResult(true, list, null)
+                try {
+                    val list = snap.documents.map { doc ->
+                        // Construimos Event campo por campo, sin toObject
+                        Event(
+                            id = doc.getString("id") ?: doc.id,
+                            title = doc.getString("title") ?: "",
+                            description = doc.getString("description") ?: "",
+                            date = doc.getTimestamp("date"),
+                            startTime = doc.getString("startTime") ?: "",
+                            endTime = doc.getString("endTime") ?: "",
+                            location = doc.getString("location") ?: "",
+                            community = doc.getString("community") ?: "",
+                            category = doc.getString("category") ?: "",
+                            maxCapacity = doc.getLong("maxCapacity"),
+                            public = doc.getBoolean("public") ?: true,
+                            creatorId = doc.getString("creatorId") ?: "",
+                            status = doc.getString("status") ?: "active"
+                        )
+                    }.filter { it.status == "active" }
+
+                    onResult(true, list, null)
+                } catch (e: Exception) {
+                    // 🔴 Cualquier problema al mapear documentos cae aquí,
+                    // NO se cierra la app, se envía como error al ViewModel.
+                    onResult(false, null, "Error al leer eventos: ${e.message}")
+                }
             }
             .addOnFailureListener { e ->
-                onResult(false, null, e.message)
+                onResult(false, null, e.message ?: "Error de Firestore")
             }
     }
 
 
+    // ---------- OBTENER DETALLE DE UN EVENTO ----------
     fun getEventById(
         eventId: String,
         onResult: (Boolean, Event?, String?) -> Unit
@@ -53,7 +72,27 @@ class EventRepository(
         eventsCollection.document(eventId)
             .get()
             .addOnSuccessListener { doc ->
-                val event = doc.toObject(Event::class.java)
+                if (!doc.exists()) {
+                    onResult(false, null, "No existe el evento")
+                    return@addOnSuccessListener
+                }
+
+                val event = Event(
+                    id = doc.getString("id") ?: doc.id,
+                    title = doc.getString("title") ?: "",
+                    description = doc.getString("description") ?: "",
+                    date = doc.getTimestamp("date"),
+                    startTime = doc.getString("startTime") ?: "",
+                    endTime = doc.getString("endTime") ?: "",
+                    location = doc.getString("location") ?: "",
+                    community = doc.getString("community") ?: "",
+                    category = doc.getString("category") ?: "",
+                    maxCapacity = doc.getLong("maxCapacity"),
+                    public = doc.getBoolean("public") ?: true,
+                    creatorId = doc.getString("creatorId") ?: "",
+                    status = doc.getString("status") ?: "active"
+                )
+
                 onResult(true, event, null)
             }
             .addOnFailureListener { e ->
@@ -61,8 +100,7 @@ class EventRepository(
             }
     }
 
-    // --------- Asistencia e historial ----------
-
+    // ---------- ASISTENCIA / HISTORIAL (puedes dejar lo que ya tienes) ----------
     private fun userAttendanceCollection(userId: String) =
         firestore.collection("users")
             .document(userId)
