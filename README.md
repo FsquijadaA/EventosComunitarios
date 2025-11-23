@@ -16,7 +16,7 @@ La **Aplicación de Gestión de Eventos Comunitarios** es una app Android en **K
 - **Lenguaje:** Kotlin  
 - **Plataforma:** Android (minSdk 24, targetSdk 36)  
 - **UI:** Jetpack Compose  
-- **Backend (sugerido):** Firebase Authentication, Firestore, (opcional) Cloud Messaging  
+- **Backend (sugerido):** Firebase Authentication.  
 
 ---
 
