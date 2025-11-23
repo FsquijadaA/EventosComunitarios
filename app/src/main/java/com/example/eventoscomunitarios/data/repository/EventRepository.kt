@@ -33,7 +33,6 @@ class EventRepository(
             .addOnSuccessListener { snap ->
                 try {
                     val list = snap.documents.map { doc ->
-                        // Construimos Event campo por campo, sin toObject
                         Event(
                             id = doc.getString("id") ?: doc.id,
                             title = doc.getString("title") ?: "",
@@ -53,7 +52,7 @@ class EventRepository(
 
                     onResult(true, list, null)
                 } catch (e: Exception) {
-                    // 🔴 Cualquier problema al mapear documentos cae aquí,
+                    // Cualquier problema al mapear documentos cae aquí,
                     // NO se cierra la app, se envía como error al ViewModel.
                     onResult(false, null, "Error al leer eventos: ${e.message}")
                 }
@@ -100,7 +99,7 @@ class EventRepository(
             }
     }
 
-    // ---------- ASISTENCIA / HISTORIAL (puedes dejar lo que ya tienes) ----------
+    // ---------- ASISTENCIA / HISTORIAL ----------
     private fun userAttendanceCollection(userId: String) =
         firestore.collection("users")
             .document(userId)

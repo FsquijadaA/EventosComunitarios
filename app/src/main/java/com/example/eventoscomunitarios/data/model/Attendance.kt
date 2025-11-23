@@ -5,7 +5,7 @@ import com.google.firebase.Timestamp
 data class Attendance(
     val eventId: String = "",
     val eventTitle: String = "",
-    val status: String = "confirmed",   // confirmed / not_attended
+    val status: String = "confirmed",
     val category: String = "",
     val date: Timestamp? = null,
     val createdAt: Timestamp? = null

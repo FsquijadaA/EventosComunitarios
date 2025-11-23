@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "768235550754",
+    "project_id": "eventoscomunitarios-360b5",
+    "storage_bucket": "eventoscomunitarios-360b5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:768235550754:android:82e50ac460d83a3577727b",
+        "android_client_info": {
+          "package_name": "com.example.eventoscomunitarios"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "768235550754-pebfrqm2af64fb7g9rp1gmmsg4kdt8si.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.eventoscomunitarios",
+            "certificate_hash": "78757ee46d2353118df889ca0a36da6ed04ec327"
+          }
+        },
+        {
+          "client_id": "768235550754-o7u2oi6rj5u16hfure8e3gkp16e701th.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpTN2LdJi8KrbJfd9Mk72mRZv3ufKKaJM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "768235550754-o7u2oi6rj5u16hfure8e3gkp16e701th.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

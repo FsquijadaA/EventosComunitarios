@@ -83,7 +83,7 @@ class AuthRepository(
                                 id = uid,
                                 name = firebaseUser.displayName ?: "",
                                 email = firebaseUser.email ?: "",
-                                community = ""  // lo podrá editar después
+                                community = ""
                             )
                             userDoc.set(user)
                                 .addOnSuccessListener { onResult(true, null) }

@@ -18,7 +18,7 @@ fun CreateEventScreen(
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var dateText by remember { mutableStateOf("") }     // simple, sin datePicker
+    var dateText by remember { mutableStateOf("") }
     var startTime by remember { mutableStateOf("") }
     var endTime by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }

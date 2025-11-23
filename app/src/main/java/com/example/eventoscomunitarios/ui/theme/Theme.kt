@@ -6,7 +6,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-// Paletas de colores muy básicas
 private val LightColors = lightColorScheme(
     primary = androidx.compose.ui.graphics.Color(0xFF006874),
     onPrimary = androidx.compose.ui.graphics.Color.White,

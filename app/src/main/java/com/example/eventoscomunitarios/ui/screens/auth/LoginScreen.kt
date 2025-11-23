@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -17,6 +18,9 @@ import com.example.eventoscomunitarios.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.android.gms.common.api.ApiException
+import com.example.eventoscomunitarios.R
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun LoginScreen(
@@ -28,6 +32,7 @@ fun LoginScreen(
 
     val uiState = authViewModel.uiState
     val context = LocalContext.current
+    val webClientId = stringResource(id = R.string.default_web_client_id)
     val activity = context as Activity
 
     // Lanzador para Google Sign-In
@@ -36,14 +41,16 @@ fun LoginScreen(
     ) { result ->
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
-            val account = task.result
+            val account = task.getResult(ApiException::class.java)
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             authViewModel.loginWithGoogle(credential)
+        } catch (e: ApiException) {
+            authViewModel.setError("Error Google: ${e.statusCode}")
         } catch (e: Exception) {
-            // si falla, actualizamos el estado con error
-            authViewModel.resetState()
+            authViewModel.setError("Error inesperado: ${e.message}")
         }
     }
+
 
     // Navegar cuando el login sea exitoso
     LaunchedEffect(uiState.isSuccess) {
@@ -51,7 +58,7 @@ fun LoginScreen(
             navController.navigate(AppRoute.Home.route) {
                 popUpTo(AppRoute.Login.route) { inclusive = true }
             }
-            authViewModel.resetState()
+            authViewModel.resetState()   // ahora ya existe la función
         }
     }
 
@@ -133,15 +140,11 @@ fun LoginScreen(
             onClick = {
                 // Configurar Google Sign-In
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(
-                        activity.getString(
-                            com.example.eventoscomunitarios.R.string.default_web_client_id
-                        )
-                    )
+                    .requestIdToken(webClientId)
                     .requestEmail()
                     .build()
 
-                val googleSignInClient = GoogleSignIn.getClient(activity, gso)
+                val googleSignInClient = GoogleSignIn.getClient(context, gso)
                 googleLauncher.launch(googleSignInClient.signInIntent)
             },
             enabled = !uiState.isLoading,
@@ -149,5 +152,6 @@ fun LoginScreen(
         ) {
             Text("Continuar con Google")
         }
+
     }
 }

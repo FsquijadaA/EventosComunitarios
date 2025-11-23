@@ -13,7 +13,7 @@ data class Event(
     val location: String = "",
     val community: String = "",
     val category: String = "",
-    val maxCapacity: Long? = null,   // número
+    val maxCapacity: Long? = null,
     val public: Boolean = true,
     val creatorId: String = "",
     val status: String = "active"
